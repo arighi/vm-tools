@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+    echo "Usage: $(basename $0) NAME [RELEASE] [ARCH]"
+    exit 1
+fi
+
+NAME=$1
+RELEASE=${2:-$NAME}
+ARCH=${3:-amd64}
+
+if virsh dumpxml $NAME &>/dev/null; then
+    # If VM is already defined, start it
+    virsh start --console ${NAME}
+else
+    # Deploy a new VM
+    uvt-simplestreams-libvirt --verbose sync --source http://cloud-images.ubuntu.com/daily release=${RELEASE} arch=${ARCH}
+    uvt-kvm create --guest-arch ${ARCH} --cpu 4 --memory 8192 ${NAME} release=${RELEASE} arch=${ARCH} --disk 256 --unsafe-caching
+    virsh console ${NAME}
+fi
