@@ -8,4 +8,4 @@ fi
 NAME=$1
 shift
 
-scp -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" $* ubuntu@$(uvt-kvm ip ${NAME}):
+scp -r -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" $* ubuntu@$(uvt-kvm ip ${NAME}):
