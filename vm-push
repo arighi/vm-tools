@@ -8,4 +8,4 @@ fi
 NAME=$1
 shift
 
-scp -r -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" $* ubuntu@$(uvt-kvm ip ${NAME}):
+rsync -avHS -e "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" $* ubuntu@$(uvt-kvm ip ${NAME}):
