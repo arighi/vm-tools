@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ $# -lt 2 ]; then
+    echo "Usage: $(basename $0) NAME FILE|DIR"
+    exit 1
+fi
+
+NAME=$1
+shift
+
+scp -r -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" ubuntu@$(uvt-kvm ip ${NAME}):$1 .
