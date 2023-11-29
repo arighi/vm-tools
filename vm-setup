@@ -24,7 +24,8 @@ ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" ubuntu@${ip}
 # Enable source packages and install all the typical dev tools
 ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" ubuntu@$(uvt-kvm ip ${NAME}) << EOF
 sudo sed -i "s/^# deb-src/deb-src/g" /etc/apt/sources.list
-sudo add-apt-repository --yes ppa:canonical-kernel-team/proposed
+sudo add-apt-repository --enable-source --yes ppa:canonical-kernel-team/proposed
+sudo add-apt-repository --enable-source --yes ppa:canonical-kernel-team/builder-extra
 sudo apt update --yes
 sudo apt upgrade --yes
 sudo apt dist-upgrade --yes
