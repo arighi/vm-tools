@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# List of dkms to exclude from testing
+EXCLUDES="nvidia-fs-dkms"
+
+# Make sure -proposed is enabled
+cat <<EOF >/etc/apt/sources.list.d/ubuntu-$(lsb_release -cs)-proposed.list
+# Enable Ubuntu proposed archive
+deb http://archive.ubuntu.com/ubuntu/ $(lsb_release -cs)-proposed restricted main multiverse universe
+EOF
+
+# Update package list
+apt update
+
+# Prevent updating initramfs every single time
+prev_update_initramfs=$(sed -ne "s/update_initramfs=\(\)/\1/p" /etc/initramfs-tools/update-initramfs.conf)
+sed -i "s/update_initramfs=yes/update_initramfs=no/" /etc/initramfs-tools/update-initramfs.conf
+
+function cleanup {
+    [ "${prev_update_initramfs}" == "yes" ] && \
+        sed -i "s/update_initramfs=no/update_initramfs=${prev_update_initramfs}/" /etc/initramfs-tools/update-initramfs.conf
+}
+trap cleanup EXIT
+
+function is_dkms_excluded() {
+    val=$1
+    [[ "$EXCLUDES" =~ ( |^)$val( |$) ]]
+}
+
+pkgs=$(apt-cache rdepends dkms | grep "^ " | sort -u)
+for p in $pkgs; do
+    echo ">>> testing $p: BEGIN"
+    if is_dkms_excluded $p; then
+        echo ">>> testing $p: SKIPPED"
+        continue
+    fi
+    # DPKG_MAINTSCRIPT_PACKAGE and --no-triggers should prevent updating the
+    # initramfs each time
+    DPKG_MAINTSCRIPT_PACKAGE=1 apt --yes -o DPkg::options::="--no-triggers" install $p
+    res=$?
+    if [ $res -ne 0 ]; then
+        echo ">>> testing $p: FAIL ($res)"
+        exit 1
+    fi
+    echo ">>> testing $p: DONE ($res)"
+done
