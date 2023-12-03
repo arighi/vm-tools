@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Try to install all the dkms and stop if any of them is broken. This script
+# can be used to test if a new Ubuntu kernel introduces any regression with the
+# available/supported dkms.
 
 # List of dkms to exclude from testing
 EXCLUDES="nvidia-fs-dkms"
