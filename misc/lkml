@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+# Fetch public kernel mailing list thread matching a certain string and store
+# all matches in a local temp.mbox file.
+
+lei q --no-save -O https://lore.kernel.org/all/ -o mboxrd:temp.mbox -t $1
